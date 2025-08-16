@@ -453,7 +453,7 @@ const AboutUs = () => {
             <Mail className="h-6 w-6 text-red-500 mr-4 mt-1" />
             <div>
               <div className="font-semibold text-neutral-800 dark:text-white">Email</div>
-              <div className="text-gray-700 dark:text-gray-300">jolugroup@gmail.com</div>
+              <div className="text-gray-700 dark:text-gray-300">info@jolusecurity.com</div>
             </div>
           </div>
           <div className="px-4 flex items-start">

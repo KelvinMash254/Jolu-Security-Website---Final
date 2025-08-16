@@ -54,7 +54,7 @@ const Footer = () => {
             <h4 className="font-semibold mb-4 text-white">Contact</h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>+254 790 298 003</li>
-              <li>jolugroup@gmail.com</li>
+              <li>info@jolusecurity.com</li>
               <li>Nairobi, Kenya</li>
             </ul>
           </div>
