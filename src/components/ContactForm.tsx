@@ -44,7 +44,9 @@ export const ContactForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+      // ✅ Ensure production API URL works
+      const API_BASE_URL = (import.meta.env.VITE_API_URL || "https://jolu-security-website-final.onrender.com").replace(/\/$/, "");
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -76,7 +78,6 @@ export const ContactForm = () => {
     const { name, value } = e.target;
 
     if (name === "phone") {
-      // Keep only digits and optional leading +
       const numericValue = value.replace(/(?!^\+)[^\d]/g, "");
       setFormData({ ...formData, [name]: numericValue });
     } else {

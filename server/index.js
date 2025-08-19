@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3021;
+const port = process.env.PORT || 3020;
 
 // ✅ Allowed origins for CORS
 const allowedOrigins =
@@ -49,7 +49,6 @@ async function connectToMongo() {
     db = client.db(process.env.MONGO_DB_NAME);
     console.log("✅ Connected to MongoDB Atlas");
 
-    // Start server only after DB connection is successful
     app.listen(port, () => {
       console.log(`🚀 Server is running on port ${port}`);
     });
@@ -83,14 +82,17 @@ app.get("/api/services", (req, res) => {
   res.json(services);
 });
 
-// ✅ Email transporter
+// ✅ Email transporter with STARTTLS (production friendly)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE === 'true',
+  port: parseInt(process.env.EMAIL_PORT), // e.g., 587
+  secure: process.env.EMAIL_SECURE === 'true', // false for STARTTLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false, // allows self-signed certs
   },
 });
 
