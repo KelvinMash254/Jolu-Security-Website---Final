@@ -31,7 +31,7 @@ app.options("*", cors());
 
 app.use(express.json());
 
-// ✅ Connect to MongoDB with timeout settings
+// ✅ Connect to MongoDB
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -39,8 +39,6 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
-  connectTimeoutMS: 10000,        // 10 seconds timeout
-  serverSelectionTimeoutMS: 10000 // fail fast if cluster not reachable
 });
 
 let db;
@@ -84,17 +82,17 @@ app.get("/api/services", (req, res) => {
   res.json(services);
 });
 
-// ✅ Email transporter
+// ✅ Email transporter with STARTTLS (production friendly)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_SECURE === 'true',
+  port: parseInt(process.env.EMAIL_PORT), // e.g., 587
+  secure: process.env.EMAIL_SECURE === 'true', // false for STARTTLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
   tls: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // allows self-signed certs
   },
 });
 
@@ -102,31 +100,29 @@ const transporter = nodemailer.createTransport({
 app.post("/api/contact", async (req, res) => {
   const { name, email, phone, service, county, area, message } = req.body;
 
+  const mailOptions = {
+    from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_TO,
+    subject: "New Contact Form Submission",
+    html: `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Service:</strong> ${service}</p>
+      <p><strong>County:</strong> ${county}</p>
+      <p><strong>Area:</strong> ${area}</p>
+      <p><strong>Message:</strong> ${message}</p>
+    `,
+  };
+
   try {
     if (!db) throw new Error("MongoDB not connected");
 
-    // Insert into MongoDB first
     await db.collection("contacts").insertOne({ name, email, phone, service, county, area, message, createdAt: new Date() });
 
-    // Send email asynchronously (don't block response)
-    transporter.sendMail({
-      from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
-      subject: "New Contact Form Submission",
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Service:</strong> ${service}</p>
-        <p><strong>County:</strong> ${county}</p>
-        <p><strong>Area:</strong> ${area}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `,
-    }, (err, info) => {
-      if (err) console.error("❌ Contact Form Email error:", err);
-      else console.log("✅ Contact Form Email sent:", info.response);
-    });
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Contact Form Email sent:", info);
 
     res.status(200).json({ message: "Message sent and saved successfully" });
   } catch (error) {
@@ -139,33 +135,31 @@ app.post("/api/contact", async (req, res) => {
 app.post("/api/quote", async (req, res) => {
   const { name, email, phone, company, county, area, service, message, guards } = req.body;
 
+  const mailOptions = {
+    from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_TO,
+    subject: "New Quote Request",
+    html: `
+      <h2>New Quote Request</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      ${company ? `<p><strong>Company:</strong> ${company}</p>` : ""}
+      <p><strong>County:</strong> ${county}</p>
+      <p><strong>Area/Town:</strong> ${area}</p>
+      ${guards ? `<p><strong>No. of Guards:</strong> ${guards}</p>` : ""}
+      <p><strong>Service:</strong> ${service}</p>
+      <p><strong>Message:</strong> ${message}</p>
+    `,
+  };
+
   try {
     if (!db) throw new Error("MongoDB not connected");
 
-    // Insert into MongoDB first
     await db.collection('quotes').insertOne({ name, email, phone, company, county, area, service, message, guards, createdAt: new Date() });
 
-    // Send email asynchronously (don't block response)
-    transporter.sendMail({
-      from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
-      subject: "New Quote Request",
-      html: `
-        <h2>New Quote Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        ${company ? `<p><strong>Company:</strong> ${company}</p>` : ""}
-        <p><strong>County:</strong> ${county}</p>
-        <p><strong>Area/Town:</strong> ${area}</p>
-        ${guards ? `<p><strong>No. of Guards:</strong> ${guards}</p>` : ""}
-        <p><strong>Service:</strong> ${service}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `,
-    }, (err, info) => {
-      if (err) console.error("❌ Quote Request Email error:", err);
-      else console.log("✅ Quote Request Email sent:", info.response);
-    });
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Quote Request Email sent:", info);
 
     res.status(200).json({ message: "Quote request sent and saved successfully" });
   } catch (error) {
