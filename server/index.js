@@ -65,41 +65,13 @@ app.use('/lovable-uploads', express.static(path.join(__dirname, 'public/lovable-
 
 // ✅ Sample Services API
 const services = [
-  {
-    title: "Manned Guarding",
-    description: "Professional security personnel providing reliable and comprehensive security solutions for residential, commercial, and industrial properties.",
-    image: "/lovable-uploads/manned-guarding.png",
-  },
-  {
-    title: "Events Security",
-    description: "Exceptional event security solutions and professional services to ensure safety and smooth execution of gatherings of all sizes.",
-    image: "/lovable-uploads/events-security.png",
-  },
-  {
-    title: "K9 Unit Services",
-    description: "Specialized canine security units for enhanced threat detection, drug screening, and comprehensive security operations.",
-    image: "/lovable-uploads/k9-unit-services.png",
-  },
-  {
-    title: "CCTV Installation",
-    description: "Advanced CCTV installation services to help clients monitor and secure their premises effectively with continuous monitoring.",
-    image: "/lovable-uploads/cctv-installation.png",
-  },
-  {
-    title: "Electric Fencing",
-    description: "Professional electric fencing installation and maintenance services to create secure perimeters for residential and commercial properties.",
-    image: "/lovable-uploads/electric-fencing.png",
-  },
-  {
-    title: "Alarm Response",
-    description: "Swift and reliable alarm response services to protect property and respond immediately to security threats and potential risks.",
-    image: "/lovable-uploads/alarm-response.png",
-  },
-  {
-    title: "VIP Close Protection",
-    description: "Elite personal protection services for high-profile individuals, executives, and VIPs requiring discreet and professional security.",
-    image: "/lovable-uploads/vip-close-protection.png",
-  },
+  { title: "Manned Guarding", description: "Professional security personnel providing reliable and comprehensive security solutions for residential, commercial, and industrial properties.", image: "/lovable-uploads/manned-guarding.png" },
+  { title: "Events Security", description: "Exceptional event security solutions and professional services to ensure safety and smooth execution of gatherings of all sizes.", image: "/lovable-uploads/events-security.png" },
+  { title: "K9 Unit Services", description: "Specialized canine security units for enhanced threat detection, drug screening, and comprehensive security operations.", image: "/lovable-uploads/k9-unit-services.png" },
+  { title: "CCTV Installation", description: "Advanced CCTV installation services to help clients monitor and secure their premises effectively with continuous monitoring.", image: "/lovable-uploads/cctv-installation.png" },
+  { title: "Electric Fencing", description: "Professional electric fencing installation and maintenance services to create secure perimeters for residential and commercial properties.", image: "/lovable-uploads/electric-fencing.png" },
+  { title: "Alarm Response", description: "Swift and reliable alarm response services to protect property and respond immediately to security threats and potential risks.", image: "/lovable-uploads/alarm-response.png" },
+  { title: "VIP Close Protection", description: "Elite personal protection services for high-profile individuals, executives, and VIPs requiring discreet and professional security.", image: "/lovable-uploads/vip-close-protection.png" },
 ];
 
 // ✅ Routes
@@ -124,15 +96,7 @@ const transporter = nodemailer.createTransport({
 
 // ✅ Contact Form
 app.post("/api/contact", async (req, res) => {
-  const {
-    name,
-    email,
-    phone,
-    service,
-    county,
-    area,
-    message,
-  } = req.body;
+  const { name, email, phone, service, county, area, message } = req.body;
 
   const mailOptions = {
     from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
@@ -151,45 +115,23 @@ app.post("/api/contact", async (req, res) => {
   };
 
   try {
-    if (!db) {
-      console.error("MongoDB not connected");
-      return res.status(500).json({ message: "Database not connected" });
-    }
+    if (!db) throw new Error("MongoDB not connected");
 
-    await db.collection("contacts").insertOne({
-      name,
-      email,
-      phone,
-      service,
-      county,
-      area,
-      message,
-      createdAt: new Date()
-    });
+    await db.collection("contacts").insertOne({ name, email, phone, service, county, area, message, createdAt: new Date() });
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Contact Form Email sent: %s", info.messageId);
+    console.log("✅ Contact Form Email sent:", info);
 
     res.status(200).json({ message: "Message sent and saved successfully" });
   } catch (error) {
-    console.error("Contact Submission Error:", error);
-    res.status(500).json({ message: "Failed to process contact request" });
+    console.error("❌ Contact Submission Error:", error);
+    res.status(500).json({ message: "Failed to process contact request", error: error.message });
   }
 });
 
 // ✅ Quote Form
 app.post("/api/quote", async (req, res) => {
-  const {
-    name,
-    email,
-    phone,
-    company,
-    county,
-    area,
-    service,
-    message,
-    guards
-  } = req.body;
+  const { name, email, phone, company, county, area, service, message, guards } = req.body;
 
   const mailOptions = {
     from: `"Jolu Group Security" <${process.env.EMAIL_USER}>`,
@@ -210,30 +152,16 @@ app.post("/api/quote", async (req, res) => {
   };
 
   try {
-    if (!db) {
-      console.error("MongoDB not connected");
-      return res.status(500).json({ message: "Database not connected" });
-    }
+    if (!db) throw new Error("MongoDB not connected");
 
-    await db.collection('quotes').insertOne({
-      name,
-      email,
-      phone,
-      company,
-      county,
-      area,
-      service,
-      message,
-      guards,
-      createdAt: new Date()
-    });
+    await db.collection('quotes').insertOne({ name, email, phone, company, county, area, service, message, guards, createdAt: new Date() });
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Quote Request sent: %s", info.messageId);
+    console.log("✅ Quote Request Email sent:", info);
 
     res.status(200).json({ message: "Quote request sent and saved successfully" });
   } catch (error) {
-    console.error("Quote Submission Error:", error);
-    res.status(500).json({ message: "Failed to process quote request" });
+    console.error("❌ Quote Submission Error:", error);
+    res.status(500).json({ message: "Failed to process quote request", error: error.message });
   }
 });
