@@ -8,7 +8,27 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3021;
 
-app.use(cors());
+// ✅ Allowed origins for CORS
+const allowedOrigins = [
+  "https://jolusecurity.com",
+  "https://www.jolusecurity.com"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+// ✅ Handle preflight
+app.options("*", cors());
+
 app.use(express.json());
 
 // ✅ Connect to MongoDB
@@ -131,7 +151,6 @@ app.post("/api/contact", async (req, res) => {
   };
 
   try {
-    // ✅ Save to MongoDB
     if (!db) {
       console.error("MongoDB not connected");
       return res.status(500).json({ message: "Database not connected" });
@@ -148,7 +167,6 @@ app.post("/api/contact", async (req, res) => {
       createdAt: new Date()
     });
 
-    // ✅ Send email
     const info = await transporter.sendMail(mailOptions);
     console.log("Contact Form Email sent: %s", info.messageId);
 
@@ -159,7 +177,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// ✅ Quote Form (with MongoDB insert)
+// ✅ Quote Form
 app.post("/api/quote", async (req, res) => {
   const {
     name,
@@ -192,7 +210,6 @@ app.post("/api/quote", async (req, res) => {
   };
 
   try {
-    // ✅ Save quote to MongoDB
     if (!db) {
       console.error("MongoDB not connected");
       return res.status(500).json({ message: "Database not connected" });
@@ -211,7 +228,6 @@ app.post("/api/quote", async (req, res) => {
       createdAt: new Date()
     });
 
-    // ✅ Send email
     const info = await transporter.sendMail(mailOptions);
     console.log("Quote Request sent: %s", info.messageId);
 
