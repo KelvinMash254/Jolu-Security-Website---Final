@@ -9,10 +9,10 @@ const app = express();
 const port = process.env.PORT || 3021;
 
 // ✅ Allowed origins for CORS
-const allowedOrigins = [
-  "https://jolusecurity.com",
-  "https://www.jolusecurity.com"
-];
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://jolusecurity.com", "https://www.jolusecurity.com"]
+    : ["http://localhost:8081", "http://localhost:8080"];
 
 app.use(cors({
   origin: function (origin, callback) {
