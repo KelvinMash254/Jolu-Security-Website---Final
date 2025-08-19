@@ -493,7 +493,7 @@ const AboutUs = () => {
           <div>
             <h4 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">Nairobi – Main Office</h4>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15955.416901251848!2d36.8508475!3d-1.2194246!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1c5a6c4b21a7%3A0x991d0a8f3c176aad!2sThome%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1712312919946!5m2!1sen!2ske"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.905467236327!2d36.8703496746426!3d-1.2256593987626516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f15e36827a427%3A0x99f4140fa95df719!2sSimba%20Close%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1755634136414!5m2!1sen!2ske"
               width="100%"
               height="300"
               style={{ border: 0 }}
