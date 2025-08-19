@@ -5,17 +5,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-export const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    service: "",
-    county: "",
-    area: "",
-    message: "",
-  });
+type FormData = {
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  county: string;
+  area: string;
+  message: string;
+};
 
+const initialFormData: FormData = {
+  name: "",
+  email: "",
+  phone: "",
+  service: "",
+  county: "",
+  area: "",
+  message: "",
+};
+
+export const ContactForm = () => {
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -44,18 +55,9 @@ export const ContactForm = () => {
           title: "Message Sent!",
           description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
         });
-
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          service: "",
-          county: "",
-          area: "",
-          message: "",
-        });
+        setFormData(initialFormData);
       } else {
-        throw new Error();
+        throw new Error("Failed request");
       }
     } catch (error) {
       toast({
@@ -69,23 +71,23 @@ export const ContactForm = () => {
   };
 
   const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-  if (name === "phone") {
-    // Allow only digits and plus sign
-    const numericValue = value.replace(/[^\d+]/g, "");
-    setFormData({ ...formData, [name]: numericValue });
-  } else {
-    setFormData({ ...formData, [name]: value });
-  }
-};
+    if (name === "phone") {
+      // Keep only digits and optional leading +
+      const numericValue = value.replace(/(?!^\+)[^\d]/g, "");
+      setFormData({ ...formData, [name]: numericValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
 
   return (
     <section className="py-10 bg-white dark:bg-black transition-colors duration-300">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Card className="shadow-lg border border-gray-200 bg-white dark:bg-black rounded-2xl">
+        <Card className="shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-black rounded-2xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center text-black dark:text-white">
               Contact Us
@@ -93,6 +95,7 @@ export const ContactForm = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
               <div>
                 <label htmlFor="name" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Full Name *
@@ -105,10 +108,12 @@ export const ContactForm = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your full name"
+                  aria-label="Full Name"
                   className="border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 />
               </div>
 
+              {/* Email */}
               <div>
                 <label htmlFor="email" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Email Address *
@@ -121,10 +126,12 @@ export const ContactForm = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
+                  aria-label="Email Address"
                   className="border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 />
               </div>
 
+              {/* Phone */}
               <div>
                 <label htmlFor="phone" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Phone Number *
@@ -133,17 +140,19 @@ export const ContactForm = () => {
                   id="phone"
                   name="phone"
                   type="tel"
-                  inputMode="numeric"
+                  inputMode="tel"
                   pattern="[0-9+]*"
                   required
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+254 7XX XXX XXX"
                   maxLength={13}
+                  aria-label="Phone Number"
                   className="border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 />
               </div>
 
+              {/* Service */}
               <div>
                 <label htmlFor="service" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Service Needed
@@ -153,6 +162,7 @@ export const ContactForm = () => {
                   name="service"
                   value={formData.service}
                   onChange={handleChange}
+                  aria-label="Service Needed"
                   className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 >
                   <option value="">Select a service</option>
@@ -166,6 +176,7 @@ export const ContactForm = () => {
                 </select>
               </div>
 
+              {/* County */}
               <div>
                 <label htmlFor="county" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   County *
@@ -176,15 +187,19 @@ export const ContactForm = () => {
                   required
                   value={formData.county}
                   onChange={handleChange}
+                  aria-label="County"
                   className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 >
                   <option value="">Select a county</option>
                   {counties.map((county) => (
-                    <option key={county} value={county}>{county}</option>
+                    <option key={county} value={county}>
+                      {county}
+                    </option>
                   ))}
                 </select>
               </div>
 
+              {/* Area */}
               <div>
                 <label htmlFor="area" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Area/Town *
@@ -197,10 +212,12 @@ export const ContactForm = () => {
                   value={formData.area}
                   onChange={handleChange}
                   placeholder="e.g. Thome, Syokimau, Moi Avenue"
+                  aria-label="Area or Town"
                   className="border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 />
               </div>
 
+              {/* Message */}
               <div className="md:col-span-2">
                 <label htmlFor="message" className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 block">
                   Message
@@ -212,14 +229,16 @@ export const ContactForm = () => {
                   value={formData.message}
                   onChange={handleChange}
                   placeholder="Tell us about your security needs..."
+                  aria-label="Message"
                   className="border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900 text-black dark:text-white"
                 />
               </div>
 
+              {/* Submit Button */}
               <div className="md:col-span-2">
                 <Button
                   type="submit"
-                  className="w-full bg-red-600 hover:bg-red-700 text-white text-base font-semibold py-2"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white text-base font-semibold py-2 rounded-xl"
                   disabled={loading}
                 >
                   {loading ? "Sending..." : "Send Message"}
