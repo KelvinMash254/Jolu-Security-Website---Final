@@ -25,7 +25,7 @@ export const QuoteForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || "https://jolu-security-backend.onrender.com";
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "https://jolu-security-website-final.onrender.com";
       const response = await fetch(`${API_BASE_URL}/api/quote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
