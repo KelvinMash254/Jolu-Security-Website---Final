@@ -20,7 +20,7 @@ const Navbar = () => {
   const base = import.meta.env.BASE_URL;
 
   let aboutTimeout: NodeJS.Timeout;
-  let servicesTimeout: NodeJS.Timeout;
+  let servicesTimeout: NodeJS.Timeout
 
   useEffect(() => {
     const handleResize = () => {

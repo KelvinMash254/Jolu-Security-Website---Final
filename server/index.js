@@ -4,7 +4,6 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
-const dns = require('dns');
 
 const app = express();
 const port = process.env.PORT || 3020;
@@ -83,17 +82,11 @@ app.get("/api/services", (req, res) => {
   res.json(services);
 });
 
-// ✅ DNS lookup for SMTP host
-dns.lookup(process.env.EMAIL_HOST, (err, address) => {
-  if (err) console.error('❌ DNS lookup failed for SMTP host:', err);
-  else console.log('✅ DNS lookup succeeded for SMTP host:', address);
-});
-
-// ✅ Email transporter
+// ✅ Email transporter with STARTTLS (production friendly)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_SECURE === 'true',
+  secure: process.env.EMAIL_SECURE === 'true', // false for STARTTLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -102,13 +95,6 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
-
-// ✅ Verify transporter
-transporter.verify((error, success) => {
-  if (error) console.error('❌ SMTP verification failed:', error);
-  else console.log('✅ SMTP connection verified');
-});
-
 // ✅ Contact Form
 app.post("/api/contact", async (req, res) => {
   const { name, email, phone, service, county, area, message } = req.body;
